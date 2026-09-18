@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+
+        <meta charset="UTF-8">
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>3D Weather Forecast</title>
+
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    </head>
+
+    <body>
+
+        <!-- 3D BACKGROUND -->
+
+        <canvas id="threeCanvas"></canvas>
+
+        <div class="background-overlay"></div>
+
+
+        <!-- LOADING -->
+
+        <div id="loading" class="loading">
+
+            <div class="loader"></div>
+
+            <p>Loading weather...</p>
+
+        </div>
+
+
+        <!-- MAIN APP -->
+
+        <main class="app-container">
+
+
+            <!-- HEADER -->
+
+            <header class="header">
+
+                <div class="brand">
+
+                    <div class="brand-icon">
+                        ☁
+                    </div>
+
+                    <div>
+
+                        <h1>Weather<span>3D</span></h1>
+
+                        <p>Intelligent Weather Dashboard</p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="header-actions">
+
+                    <button id="locationBtn" class="icon-btn" title="Use my location">
+                        📍
+                    </button>
+
+                    <button id="refreshBtn" class="icon-btn" title="Refresh">
+                        ↻
+                    </button>
+
+                </div>
+
+            </header>
+
+
+            <!-- SEARCH -->
+
+            <section class="search-section">
+
+                <form id="searchForm">
+
+                    <div class="search-box">
+
+                        <span>🔎</span>
+
+                        <input id="cityInput" type="text" placeholder="Search city..." autocomplete="off">
+
+                        <button type="submit">
+                            Search
+                        </button>
+
+                    </div>
+
+                </form>
+
+                <div id="errorMessage" class="error-message"></div>
+
+            </section>
+
+
+            <!-- WEATHER HERO -->
+
+            <section id="weatherDashboard" class="dashboard hidden">
+
+
+                <!-- LOCATION -->
+
+                <div class="location-row">
+
+                    <div>
+
+                        <h2 id="cityName">
+                            Pune
+                        </h2>
+
+                        <p id="countryName">
+                            India
+                        </p>
+
+                    </div>
+
+                    <div class="last-updated">
+
+                        <span>Last updated</span>
+
+                        <strong id="updatedTime">
+                            --
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- MAIN WEATHER -->
+
+                <div class="hero-weather">
+
+                    <div class="temperature-area">
+
+                        <img id="weatherIcon" class="weather-icon" src="" alt="Weather">
+
+                        <div>
+
+                            <div class="temperature">
+
+                                <span id="temperature">
+                                    --
+                                </span>
+
+                                <span class="degree">
+                                    °C
+                                </span>
+
+                            </div>
+
+                            <p id="description">
+                                --
+                            </p>
+
+                            <p class="feels">
+                                Feels like
+                                <strong id="feelsLike">
+                                    --
+                                </strong>°C
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="high-low">
+
+                        <div>
+
+                            <span>↑ High</span>
+
+                            <strong id="tempMax">
+                                --°
+                            </strong>
+
+                        </div>
+
+                        <div>
+
+                            <span>↓ Low</span>
+
+                            <strong id="tempMin">
+                                --°
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- WEATHER STATS -->
+
+                <section class="stats-grid">
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon">
+                            💧
+                        </div>
+
+                        <div>
+
+                            <span>Humidity</span>
+
+                            <strong>
+                                <span id="humidity">--</span>%
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon">
+                            💨
+                        </div>
+
+                        <div>
+
+                            <span>Wind</span>
+
+                            <strong>
+                                <span id="windSpeed">--</span>
+                                m/s
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon">
+                            🌡️
+                        </div>
+
+                        <div>
+
+                            <span>Pressure</span>
+
+                            <strong>
+                                <span id="pressure">--</span>
+                                hPa
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon">
+                            👁️
+                        </div>
+
+                        <div>
+
+                            <span>Visibility</span>
+
+                            <strong>
+                                <span id="visibility">--</span>
+                                km
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon">
+                            ☁️
+                        </div>
+
+                        <div>
+
+                            <span>Cloud Cover</span>
+
+                            <strong>
+                                <span id="clouds">--</span>%
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon">
+                            🧭
+                        </div>
+
+                        <div>
+
+                            <span>Wind Direction</span>
+
+                            <strong>
+                                <span id="windDirection">--</span>°
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- SUN -->
+
+                <section class="sun-section">
+
+                    <div class="sun-card">
+
+                        <div class="sun-visual">
+                            🌅
+                        </div>
+
+                        <div>
+
+                            <span>Sunrise</span>
+
+                            <strong id="sunrise">
+                                --
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="sun-card">
+
+                        <div class="sun-visual">
+                            🌇
+                        </div>
+
+                        <div>
+
+                            <span>Sunset</span>
+
+                            <strong id="sunset">
+                                --
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- HOURLY -->
+
+                <section class="section">
+
+                    <div class="section-header">
+
+                        <h3>Hourly Forecast</h3>
+
+                        <span>
+                            Next 24 hours
+                        </span>
+
+                    </div>
+
+                    <div id="hourlyForecast" class="hourly-scroll"></div>
+
+                </section>
+
+
+                <!-- CHART -->
+
+                <section class="section chart-card">
+
+                    <div class="section-header">
+
+                        <h3>Temperature Trend</h3>
+
+                        <span>
+                            Next 24 hours
+                        </span>
+
+                    </div>
+
+                    <div class="chart-container">
+
+                        <canvas id="temperatureChart"></canvas>
+
+                    </div>
+
+                </section>
+
+
+                <!-- 5 DAY -->
+
+                <section class="section">
+
+                    <div class="section-header">
+
+                        <h3>5-Day Forecast</h3>
+
+                        <span>
+                            Extended outlook
+                        </span>
+
+                    </div>
+
+                    <div id="dailyForecast" class="daily-grid"></div>
+
+                </section>
+
+
+                <!-- COORDINATES -->
+
+                <section class="coordinates-card">
+
+                    <div>
+
+                        <span>Latitude</span>
+
+                        <strong id="latitude">
+                            --
+                        </strong>
+
+                    </div>
+
+                    <div>
+
+                        <span>Longitude</span>
+
+                        <strong id="longitude">
+                            --
+                        </strong>
+
+                    </div>
+
+                </section>
+
+
+            </section>
+
+
+            <!-- WELCOME -->
+
+            <section id="welcome" class="welcome">
+
+                <div class="welcome-icon">
+                    🌎
+                </div>
+
+                <h2>
+                    Explore the Weather
+                </h2>
+
+                <p>
+                    Search for any city to see
+                    real-time weather,
+                    hourly forecasts and
+                    5-day predictions.
+                </p>
+
+                <button id="demoBtn" class="demo-button">
+                    Try Pune
+                </button>
+
+            </section>
+
+
+            <footer>
+
+                <p>
+                    Weather3D Dashboard
+                    • Powered by OpenWeather
+                </p>
+
+            </footer>
+
+        </main>
+
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+        <script src="{{ url_for('static', filename='app.js') }}"></script>
+
+    </body>
+
+</html>
